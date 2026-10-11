@@ -1,0 +1,6 @@
+build*/
+artifacts/
+models/
+__pycache__/
+*.tmp
+初赛验证集dev/

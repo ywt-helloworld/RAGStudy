@@ -1,0 +1,35 @@
+{
+  "models": {
+    "embedding": "../Chinese-Classical-Literature-RAG/models/embedding/bge-small-zh-v1.5-f16.gguf",
+    "generation": "../Chinese-Classical-Literature-RAG/models/llm/openai_gpt-oss-20b-MXFP4.gguf",
+    "n_gpu_layers": 0
+  },
+  "document": {
+    "chunk_size": 600,
+    "overlap_size": 80
+  },
+  "embedding": {
+    "n_ctx": 512,
+    "n_batch": 512,
+    "n_ubatch": 512
+  },
+  "generation": {
+    "n_ctx": 8192,
+    "n_batch": 512,
+    "n_ubatch": 512,
+    "max_output_tokens": 512,
+    "temperature": 0.0,
+    "top_k": 40,
+    "top_p": 0.9
+  },
+  "retrieval": {
+    "top_k": 8,
+    "candidate_k": 50,
+    "rrf_k": 60,
+    "context_chars": 6000,
+    "bm25_k1": 1.2,
+    "bm25_b": 0.75,
+    "vector_weight": 0.25,
+    "option_queries": true
+  }
+}

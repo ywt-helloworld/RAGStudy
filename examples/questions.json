@@ -1,0 +1,4 @@
+[
+  {"question_id": "demo-1", "question_text": "发现设备故障后，应该怎样处理？"},
+  {"question_id": "demo-2", "question_text": "设备发生故障时，哪项正确？\n选择：A.自行拆卸检查 B.继续通电测试 C.停止使用并向运维报告 D.不需要登记", "answer": "C"}
+]

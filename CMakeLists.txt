@@ -1,6 +1,5 @@
-cmake_minimum_required(VERSION 3.16)
-
-project(RAGCLI LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.20)
+project(RAGCLI LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -9,17 +8,45 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_subdirectory(third_party/CLI11)
 add_subdirectory(third_party/json)
 
-add_executable(${PROJECT_NAME}
-    src/main.cpp
-    src/Config.cpp
-    src/Logger.cpp
-)
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
+add_library(rag_core src/Config.cpp src/Logger.cpp src/Text.cpp src/Document.cpp src/Index.cpp src/Evaluation.cpp)
+target_include_directories(rag_core PUBLIC include)
+target_link_libraries(rag_core PUBLIC nlohmann_json::nlohmann_json)
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-    include
-)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    CLI11::CLI11
-    nlohmann_json::nlohmann_json
-)
+option(RAG_WITH_LLAMA "Enable local GGUF inference" ON)
+set(RAG_LLAMA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/llama.cpp" CACHE PATH "llama.cpp source directory")
+if(RAG_WITH_LLAMA)
+    if(NOT EXISTS "${RAG_LLAMA_DIR}/CMakeLists.txt" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../Chinese-Classical-Literature-RAG/third_party/llama.cpp/CMakeLists.txt")
+        set(RAG_LLAMA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Chinese-Classical-Literature-RAG/third_party/llama.cpp")
+        message(STATUS "Reusing sibling llama.cpp: ${RAG_LLAMA_DIR}")
+    endif()
+    if(NOT EXISTS "${RAG_LLAMA_DIR}/CMakeLists.txt")
+        message(FATAL_ERROR "Set RAG_LLAMA_DIR to llama.cpp, or set RAG_WITH_LLAMA=OFF for lexical retrieval")
+    endif()
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+    set(LLAMA_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(LLAMA_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(LLAMA_BUILD_SERVER OFF CACHE BOOL "" FORCE)
+    set(LLAMA_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+    set(GGML_CCACHE OFF CACHE BOOL "" FORCE)
+    add_subdirectory("${RAG_LLAMA_DIR}" "llama")
+endif()
+add_executable(RAGCLI src/main.cpp src/Inference.cpp)
+target_link_libraries(RAGCLI PRIVATE rag_core CLI11::CLI11)
+if(RAG_WITH_LLAMA)
+    target_compile_definitions(RAGCLI PRIVATE RAG_WITH_LLAMA=1)
+    target_link_libraries(RAGCLI PRIVATE llama)
+endif()
+include(CTest)
+if(BUILD_TESTING)
+    add_executable(rag_tests tests/core_tests.cpp)
+    target_link_libraries(rag_tests PRIVATE rag_core)
+    add_test(NAME rag_core COMMAND rag_tests)
+    if(RAG_WITH_LLAMA)
+        add_executable(rag_model_checks tests/model_checks.cpp src/Inference.cpp)
+        target_compile_definitions(rag_model_checks PRIVATE RAG_WITH_LLAMA=1)
+        target_link_libraries(rag_model_checks PRIVATE rag_core llama)
+    endif()
+endif()
