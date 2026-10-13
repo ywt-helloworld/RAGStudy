@@ -1,6 +1,8 @@
 build*/
-artifacts/
-models/
+logs/
+/models/
 __pycache__/
 *.tmp
-初赛验证集dev/
+*.db
+test/
+/rag-source.tar.gz

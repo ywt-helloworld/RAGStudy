@@ -1,35 +1,24 @@
 {
-    "document": {
-        "chunk_size": 600,
-        "overlap_size": 80
-    },
     "embedding": {
-        "n_batch": 512,
-        "n_ctx": 512,
-        "n_ubatch": 512
+        "n_ctx": 1024,
+        "n_batch": 1024,
+        "n_ubatch": 1024
     },
     "generation": {
-        "max_output_tokens": 512,
-        "n_batch": 512,
-        "n_ctx": 8192,
+        "n_ctx": 4096,
+        "n_batch": 4096,
         "n_ubatch": 512,
-        "temperature": 0.0,
+        "max_output_tokens": 512,
+        "temperature": 0.7,
         "top_k": 40,
         "top_p": 0.9
     },
     "models": {
-        "embedding": "./models/embedding/bge-m3-q4_k_m.gguf",
-        "generation": "./models/llm/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+        "embedding": "models/embedding/bge-m3-q4_k_m.gguf",
+        "generation": "models/llm/qwen2.5-1.5b-instruct-q4_k_m.gguf",
         "n_gpu_layers": 0
     },
     "retrieval": {
-        "top_k": 8,
-        "candidate_k": 50,
-        "rrf_k": 60,
-        "context_chars": 6000,
-        "option_queries": true,
-        "bm25_k1": 1.2,
-        "bm25_b": 0.75,
-        "vector_weight": 0.25
+        "top_k": 5
     }
 }
